@@ -1,50 +1,48 @@
-# Welcome to your Expo app 👋
+# FormikFormsApp
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+## Backend
+**Firebase** (Authentication + Firestore)
 
-## Get started
+## Setup Steps
 
-1. Install dependencies
-
+1. Clone the repository
+2. Install dependencies:
    ```bash
    npm install
    ```
-
-2. Start the app
-
+3. Create a `.env` file in the root with your Firebase config:
+   ```
+   EXPO_PUBLIC_FIREBASE_API_KEY=...
+   EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN=...
+   EXPO_PUBLIC_FIREBASE_PROJECT_ID=...
+   EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET=...
+   EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=...
+   EXPO_PUBLIC_FIREBASE_APP_ID=...
+   ```
+4. Start the app:
    ```bash
    npx expo start
    ```
 
-In the output, you'll find options to open the app in a
+## Test Account
+You can create a new account from the Sign Up screen.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## Features Implemented (CRUD Checklist)
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+- [x] **Sign Up** — Create account with Firebase Auth
+- [x] **Sign In** — Authenticate with email/password
+- [x] **Sign Out** — Log out with confirmation
+- [x] **Protected Routes** — Unauthenticated users redirected to Sign In
+- [x] **Session Persistence** — Session restored on app launch
+- [x] **Create** — Submit Employee Information Form → saved to Firestore
+- [x] **Read** — View all submissions in a list screen (real-time updates)
+- [x] **Read (Detail)** — View individual employee record details
+- [x] **Delete** — Delete a record with confirmation modal
+- [x] **Error Handling** — Network errors, auth errors, empty states
+- [x] **Loading States** — Spinners during all async operations
+- [x] **User-Scoped Data** — Each record linked to authenticated user's UID
+- [x] **Environment Variables** — Firebase config stored in `.env`, not hardcoded
 
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## Security
+- Firestore Security Rules restrict read/write to authenticated users only
+- API keys stored in environment variables (`.env` is in `.gitignore`)

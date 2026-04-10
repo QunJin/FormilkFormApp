@@ -1,43 +1,66 @@
 // app/index.tsx
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { useAuth } from '../context/AuthContext';
 import { COLORS } from '../constants/styles';
 
 const menuItems = [
   {
     title: 'Employee Information Form',
-    description: 'Fill in employee details with validation',
-    icon: 'person-outline' as const,
+    description: 'Submit a new employee record',
+    icon: 'person-add-outline' as const,
     route: '/employee-form' as const,
     color: '#4F46E5',
   },
   {
-    title: 'Sign In',
-    description: 'Authenticate with email and password',
-    icon: 'log-in-outline' as const,
-    route: '/sign-in' as const,
-    color: '#0891B2',
-  },
-  {
-    title: 'Sign Up',
-    description: 'Create a new account',
-    icon: 'person-add-outline' as const,
-    route: '/sign-up' as const,
+    title: 'View Submissions',
+    description: 'Browse and manage submitted records',
+    icon: 'list-outline' as const,
+    route: '/submissions' as const,
     color: '#059669',
   },
 ];
 
 export default function HomeScreen() {
   const router = useRouter();
+  const { user, signOut } = useAuth();
+
+  const handleSignOut = () => {
+    Alert.alert('Sign Out', 'Are you sure you want to sign out?', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Sign Out',
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            await signOut();
+          } catch (error) {
+            Alert.alert('Error', 'Failed to sign out. Please try again.');
+          }
+        },
+      },
+    ]);
+  };
 
   return (
     <SafeAreaView style={styles.safe}>
       <View style={styles.container}>
-        <Text style={styles.title}>Welcome 👋</Text>
-        <Text style={styles.subtitle}>Select a form to get started</Text>
+        {/* Header */}
+        <View style={styles.header}>
+          <View>
+            <Text style={styles.greeting}>Welcome back 👋</Text>
+            <Text style={styles.email}>{user?.email}</Text>
+          </View>
+          <TouchableOpacity style={styles.signOutBtn} onPress={handleSignOut}>
+            <Ionicons name="log-out-outline" size={22} color={COLORS.error} />
+          </TouchableOpacity>
+        </View>
 
+        <Text style={styles.sectionTitle}>What would you like to do?</Text>
+
+        {/* Menu Cards */}
         {menuItems.map((item) => (
           <TouchableOpacity
             key={item.route}
@@ -61,25 +84,27 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-    backgroundColor: COLORS.background,
-  },
-  container: {
-    flex: 1,
-    padding: 24,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: '800',
-    color: COLORS.text,
-    marginBottom: 4,
+  safe: { flex: 1, backgroundColor: COLORS.background },
+  container: { flex: 1, padding: 24 },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 32,
     marginTop: 8,
   },
-  subtitle: {
+  greeting: { fontSize: 22, fontWeight: '800', color: COLORS.text },
+  email: { fontSize: 13, color: COLORS.textMuted, marginTop: 2 },
+  signOutBtn: {
+    padding: 10,
+    backgroundColor: '#FEE2E2',
+    borderRadius: 12,
+  },
+  sectionTitle: {
     fontSize: 15,
+    fontWeight: '600',
     color: COLORS.textMuted,
-    marginBottom: 32,
+    marginBottom: 16,
   },
   card: {
     flexDirection: 'row',
@@ -102,17 +127,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginRight: 14,
   },
-  cardText: {
-    flex: 1,
-  },
-  cardTitle: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: COLORS.text,
-    marginBottom: 3,
-  },
-  cardDesc: {
-    fontSize: 13,
-    color: COLORS.textMuted,
-  },
+  cardText: { flex: 1 },
+  cardTitle: { fontSize: 15, fontWeight: '700', color: COLORS.text, marginBottom: 3 },
+  cardDesc: { fontSize: 13, color: COLORS.textMuted },
 });
