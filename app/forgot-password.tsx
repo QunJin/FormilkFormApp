@@ -1,49 +1,50 @@
-// app/sign-in.tsx
+// app/forgot-password.tsx
 import React, { useState } from 'react';
 import {
   View, Text, ScrollView, StyleSheet,
-  SafeAreaView, TouchableOpacity, KeyboardAvoidingView, Platform,
+  SafeAreaView, TouchableOpacity, KeyboardAvoidingView, Platform, Alert,
 } from 'react-native';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
+import { sendPasswordResetEmail } from 'firebase/auth';
 import { useRouter } from 'expo-router';
-import { useAuth } from '../context/AuthContext';
+import { auth } from '../config/firebase';
 import FormInput from '../components/FormInput';
 import SubmitButton from '../components/SubmitButton';
 import { COLORS } from '../constants/styles';
 
-const SignInSchema = Yup.object().shape({
+const ForgotPasswordSchema = Yup.object().shape({
   email: Yup.string().email('Invalid email address').required('Email is required'),
-  password: Yup.string().min(8, 'At least 8 characters').required('Password is required'),
 });
 
-// Map Firebase error codes to friendly messages
 const getFriendlyError = (code: string) => {
   switch (code) {
     case 'auth/user-not-found': return 'No account found with this email.';
-    case 'auth/wrong-password': return 'Incorrect password. Please try again.';
-    case 'auth/invalid-credential': return 'Invalid email or password.';
-    case 'auth/too-many-requests': return 'Too many attempts. Please try again later.';
+    case 'auth/invalid-email': return 'Please enter a valid email.';
     case 'auth/network-request-failed': return 'Network error. Check your connection.';
     default: return 'Something went wrong. Please try again.';
   }
 };
 
-export default function SignInScreen() {
+export default function ForgotPasswordScreen() {
   const [loading, setLoading] = useState(false);
   const [authError, setAuthError] = useState('');
-  const { signIn } = useAuth();
   const router = useRouter();
 
   const formik = useFormik({
-    initialValues: { email: '', password: '' },
-    validationSchema: SignInSchema,
+    initialValues: { email: '' },
+    validationSchema: ForgotPasswordSchema,
     onSubmit: async (values) => {
       setLoading(true);
       setAuthError('');
       try {
-        await signIn(values.email, values.password);
-        // AuthGate in _layout will auto-redirect to home
+        // Firebase sends a reset email automatically
+        await sendPasswordResetEmail(auth, values.email);
+        Alert.alert(
+          '📧 Email Sent!',
+          `A password reset link has been sent to ${values.email}. Check your inbox.`,
+          [{ text: 'Back to Sign In', onPress: () => router.replace('/sign-in') }]
+        );
       } catch (error: any) {
         setAuthError(getFriendlyError(error.code));
       } finally {
@@ -59,13 +60,15 @@ export default function SignInScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         <ScrollView contentContainerStyle={styles.container}>
-          {/* Logo / Header */}
+          {/* Header */}
           <View style={styles.header}>
-            <View style={styles.logoBox}>
-              <Text style={styles.logoText}>FF</Text>
+            <View style={styles.iconBox}>
+              <Text style={styles.iconText}>🔑</Text>
             </View>
-            <Text style={styles.title}>Welcome Back</Text>
-            <Text style={styles.subtitle}>Sign in to your account</Text>
+            <Text style={styles.title}>Forgot Password?</Text>
+            <Text style={styles.subtitle}>
+              Enter your email and we'll send you a reset link.
+            </Text>
           </View>
 
           {/* Form Card */}
@@ -88,36 +91,18 @@ export default function SignInScreen() {
               touched={formik.touched.email}
             />
 
-            <FormInput
-              label="Password"
-              placeholder="Enter your password"
-              iconName="lock-closed-outline"
-              isPassword
-              value={formik.values.password}
-              onChangeText={formik.handleChange('password')}
-              onBlur={formik.handleBlur('password')}
-              error={formik.errors.password}
-              touched={formik.touched.password}
-            />
-
-            <TouchableOpacity
-              style={styles.forgotPassword}
-              onPress={() => router.push('/forgot-password')}
-            >
-              <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
-            </TouchableOpacity>
-
             <SubmitButton
-              title="Sign In"
+              title="Send Reset Link"
               onPress={formik.handleSubmit}
               disabled={!formik.isValid || !formik.dirty}
               loading={loading}
             />
 
+            {/* Back to Sign In */}
             <View style={styles.footer}>
-              <Text style={styles.footerText}>Don't have an account? </Text>
-              <TouchableOpacity onPress={() => router.push('/sign-up')}>
-                <Text style={styles.footerLink}>Sign Up</Text>
+              <Text style={styles.footerText}>Remember your password? </Text>
+              <TouchableOpacity onPress={() => router.back()}>
+                <Text style={styles.footerLink}>Sign In</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -131,42 +116,21 @@ const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: COLORS.background },
   container: { flexGrow: 1, padding: 24, justifyContent: 'center' },
   header: { alignItems: 'center', marginBottom: 32 },
-  logoBox: {
-    width: 72,
-    height: 72,
-    borderRadius: 20,
-    backgroundColor: COLORS.primary,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 16,
-    shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 4,
+  iconBox: {
+    width: 72, height: 72, borderRadius: 20,
+    backgroundColor: COLORS.primary + '18',
+    justifyContent: 'center', alignItems: 'center', marginBottom: 16,
   },
-  logoText: { fontSize: 26, fontWeight: '800', color: COLORS.white },
-  title: { fontSize: 26, fontWeight: '800', color: COLORS.text, marginBottom: 4 },
-  subtitle: { fontSize: 15, color: COLORS.textMuted },
+  iconText: { fontSize: 36 },
+  title: { fontSize: 26, fontWeight: '800', color: COLORS.text, marginBottom: 8 },
+  subtitle: { fontSize: 14, color: COLORS.textMuted, textAlign: 'center', lineHeight: 20 },
   card: {
-    backgroundColor: COLORS.white,
-    borderRadius: 20,
-    padding: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 4,
+    backgroundColor: COLORS.white, borderRadius: 20, padding: 24,
+    shadowColor: '#000', shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08, shadowRadius: 12, elevation: 4,
   },
-  errorBanner: {
-    backgroundColor: '#FEE2E2',
-    borderRadius: 10,
-    padding: 12,
-    marginBottom: 16,
-  },
+  errorBanner: { backgroundColor: '#FEE2E2', borderRadius: 10, padding: 12, marginBottom: 16 },
   errorBannerText: { color: COLORS.error, fontSize: 13, fontWeight: '500' },
-  forgotPassword: { alignSelf: 'flex-end', marginBottom: 8, marginTop: -4 },
-  forgotPasswordText: { fontSize: 13, color: COLORS.primary, fontWeight: '600' },
   footer: { flexDirection: 'row', justifyContent: 'center', marginTop: 20 },
   footerText: { fontSize: 14, color: COLORS.textMuted },
   footerLink: { fontSize: 14, color: COLORS.primary, fontWeight: '700' },

@@ -142,6 +142,16 @@ export default function SubmissionDetailScreen() {
           <DetailRow icon="briefcase-outline" label="Job Title" value={employee.jobTitle} />
         </View>
 
+        {/* Edit Button */}
+        <TouchableOpacity
+          style={styles.editBtn}
+          onPress={() => router.push({ pathname: '/edit-employee', params: { id } })}
+          activeOpacity={0.8}
+        >
+          <Ionicons name="create-outline" size={18} color={COLORS.white} />
+          <Text style={styles.editBtnText}>Edit Record</Text>
+        </TouchableOpacity>
+
         {/* Delete Button */}
         <TouchableOpacity
           style={styles.deleteBtn}
@@ -211,6 +221,15 @@ const styles = StyleSheet.create({
   detailText: { flex: 1 },
   detailLabel: { fontSize: 12, color: COLORS.textMuted, marginBottom: 2 },
   detailValue: { fontSize: 15, fontWeight: '600', color: COLORS.text },
+  editBtn: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+    backgroundColor: COLORS.primary, borderRadius: 14,
+    padding: 16, gap: 8, marginBottom: 12,
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3, shadowRadius: 8, elevation: 4,
+  },
+  editBtnText: { color: COLORS.white, fontWeight: '700', fontSize: 16 },
   deleteBtn: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
     backgroundColor: COLORS.error, borderRadius: 14,

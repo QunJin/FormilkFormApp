@@ -15,7 +15,8 @@ function AuthGate({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (isLoading) return; // wait until session is checked
 
-    const inAuthGroup = segments[0] === 'sign-in' || segments[0] === 'sign-up';
+    const publicScreens = ['sign-in', 'sign-up', 'forgot-password'];
+    const inAuthGroup = publicScreens.includes(segments[0] as string);
 
     if (!user && !inAuthGroup) {
       // Not logged in → send to sign-in
@@ -55,8 +56,11 @@ export default function RootLayout() {
           <Stack.Screen name="employee-form" options={{ title: 'Employee Information' }} />
           <Stack.Screen name="submissions" options={{ title: 'Submissions' }} />
           <Stack.Screen name="submission-detail" options={{ title: 'Submission Detail' }} />
+          <Stack.Screen name="edit-employee" options={{ title: 'Edit Employee' }} />
+          <Stack.Screen name="profile" options={{ title: 'My Profile' }} />
           <Stack.Screen name="sign-in" options={{ headerShown: false }} />
           <Stack.Screen name="sign-up" options={{ headerShown: false }} />
+          <Stack.Screen name="forgot-password" options={{ headerShown: false }} />
         </Stack>
       </AuthGate>
     </AuthProvider>

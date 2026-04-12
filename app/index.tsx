@@ -21,6 +21,13 @@ const menuItems = [
     route: '/submissions' as const,
     color: '#059669',
   },
+  {
+    title: 'My Profile',
+    description: 'View your account details',
+    icon: 'person-circle-outline' as const,
+    route: '/profile' as const,
+    color: '#7C3AED',
+  },
 ];
 
 export default function HomeScreen() {
